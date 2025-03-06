@@ -13,6 +13,7 @@ npx cap sync
 
 <docgen-index>
 
+* [`isMessagingAvailable()`](#ismessagingavailable)
 * [`sendMessage(...)`](#sendmessage)
 * [Interfaces](#interfaces)
 
@@ -20,6 +21,17 @@ npx cap sync
 
 <docgen-api>
 <!--Update the source file JSDoc comments and rerun docgen to update the docs below-->
+
+### isMessagingAvailable()
+
+```typescript
+isMessagingAvailable() => Promise<{ available: boolean; }>
+```
+
+**Returns:** <code>Promise&lt;{ available: boolean; }&gt;</code>
+
+--------------------
+
 
 ### sendMessage(...)
 
