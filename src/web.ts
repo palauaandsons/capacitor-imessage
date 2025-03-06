@@ -1,10 +1,10 @@
 import { WebPlugin } from '@capacitor/core';
-
-import type { IMessagePlugin } from './definitions';
+import type { IMessagePlugin, SendMessageOptions } from './definitions';
 
 export class IMessageWeb extends WebPlugin implements IMessagePlugin {
-  async echo(options: { value: string }): Promise<{ value: string }> {
-    console.log('ECHO', options);
-    return options;
+
+  async sendMessage(_options: SendMessageOptions): Promise<{ status: string }> {
+    console.warn('sendMessage is not supported on the web. This only works on iOS.');
+    return Promise.reject({ status: "unsupported", message: "iMessage is only available on iOS." });
   }
 }

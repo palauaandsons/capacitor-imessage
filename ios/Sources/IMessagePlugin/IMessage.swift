@@ -1,8 +1,10 @@
 import Foundation
 import MessageUI
 import UIKit
+import Capacitor
 
-@objc public class IMessage: NSObject, MFMessageComposeViewControllerDelegate {
+@objc(IMessage)
+public class IMessage: NSObject, MFMessageComposeViewControllerDelegate {
 
     private var call: CAPPluginCall?
 
@@ -32,7 +34,9 @@ import UIKit
                 messageVC.addAttachmentData(imageData, typeIdentifier: mimeType, filename: fileName)
             }
 
-            guard let viewController = UIApplication.shared.keyWindow?.rootViewController else {
+            guard let viewController = UIApplication.shared.connectedScenes
+                .compactMap({ ($0 as? UIWindowScene)?.windows.first?.rootViewController })
+                .first else {
                 call.reject("Failed to get root view controller")
                 return
             }
@@ -45,7 +49,6 @@ import UIKit
     public func messageComposeViewController(_ controller: MFMessageComposeViewController, didFinishWith result: MessageComposeResult) {
         controller.dismiss(animated: true, completion: nil)
 
-        // Handle the result
         switch result {
         case .sent:
             call?.resolve(["status": "sent"])

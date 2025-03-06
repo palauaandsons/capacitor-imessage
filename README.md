@@ -13,25 +13,37 @@ npx cap sync
 
 <docgen-index>
 
-* [`echo(...)`](#echo)
+* [`sendMessage(...)`](#sendmessage)
+* [Interfaces](#interfaces)
 
 </docgen-index>
 
 <docgen-api>
 <!--Update the source file JSDoc comments and rerun docgen to update the docs below-->
 
-### echo(...)
+### sendMessage(...)
 
 ```typescript
-echo(options: { value: string; }) => Promise<{ value: string; }>
+sendMessage(options: SendMessageOptions) => Promise<{ status: string; }>
 ```
 
-| Param         | Type                            |
-| ------------- | ------------------------------- |
-| **`options`** | <code>{ value: string; }</code> |
+| Param         | Type                                                              |
+| ------------- | ----------------------------------------------------------------- |
+| **`options`** | <code><a href="#sendmessageoptions">SendMessageOptions</a></code> |
 
-**Returns:** <code>Promise&lt;{ value: string; }&gt;</code>
+**Returns:** <code>Promise&lt;{ status: string; }&gt;</code>
 
 --------------------
+
+
+### Interfaces
+
+
+#### SendMessageOptions
+
+| Prop           | Type                |
+| -------------- | ------------------- |
+| **`text`**     | <code>string</code> |
+| **`imageUrl`** | <code>string</code> |
 
 </docgen-api>
