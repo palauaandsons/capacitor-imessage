@@ -24,20 +24,25 @@ public class IMessagePlugin extends Plugin {
         String text = call.getString("text", "");
         String imageUrl = call.getString("imageUrl");
 
-        // ✅ Use ACTION_SENDTO to ensure the correct MMS app is used
-        Intent intent = new Intent(Intent.ACTION_SENDTO);
-        intent.setData(Uri.parse("mmsto:"));  // Ensures MMS (not SMS)
-        intent.putExtra("sms_body", text);
+        Intent intent;
 
         if (imageUrl != null && !imageUrl.isEmpty()) {
+            intent = new Intent(Intent.ACTION_SEND);
+            intent.setType("image/*");
+            intent.putExtra(Intent.EXTRA_TEXT, text);
+
             try {
                 Uri uri = Uri.parse(imageUrl);
                 intent.putExtra(Intent.EXTRA_STREAM, uri);
-                intent.setType("image/*");
             } catch (Exception e) {
                 call.reject("Invalid image URL.");
                 return;
             }
+
+        } else {
+            intent = new Intent(Intent.ACTION_SENDTO);
+            intent.setData(Uri.parse("smsto:"));  // Ensures it opens an SMS/MMS app
+            intent.putExtra("sms_body", text);
         }
 
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
@@ -48,8 +53,8 @@ public class IMessagePlugin extends Plugin {
             result.put("status", "sent");
             call.resolve(result);
         } catch (Exception e) {
-            Log.e("IMessagePlugin", "Error launching MMS app", e);
-            call.reject("Failed to open MMS app. Error: " + e.getMessage());
+            Log.e("IMessagePlugin", "Error launching SMS/MMS app", e);
+            call.reject("Failed to open SMS/MMS app. Error: " + e.getMessage());
         }
     }
 }
