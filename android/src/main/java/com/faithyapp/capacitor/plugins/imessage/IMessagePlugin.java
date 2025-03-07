@@ -2,11 +2,15 @@ package com.faithyapp.capacitor.plugins.imessage;
 
 import android.content.Intent;
 import android.net.Uri;
-import android.content.pm.PackageManager;
 import android.util.Log;
 import com.getcapacitor.*;
 import com.getcapacitor.annotation.CapacitorPlugin;
 
+/**
+ * IMessagePlugin: Opens the user's default SMS/MMS app to send messages.
+ * - If only text is provided, it uses ACTION_SENDTO (SMS).
+ * - If an image is also provided, it uses ACTION_SEND (MMS).
+ */
 @CapacitorPlugin(name = "IMessage")
 public class IMessagePlugin extends Plugin {
 
@@ -21,16 +25,20 @@ public class IMessagePlugin extends Plugin {
 
     @PluginMethod
     public void sendMessage(PluginCall call) {
-        String text = call.getString("text", "");
-        String imageUrl = call.getString("imageUrl");
+        // Get parameters
+        String text = call.getString("text", "");        // The text message
+        String imageUrl = call.getString("imageUrl");    // Optional image URL
 
         Intent intent;
 
+        // CASE 1: If there's an image, we treat it as MMS
         if (imageUrl != null && !imageUrl.isEmpty()) {
+            // Use ACTION_SEND for MMS
             intent = new Intent(Intent.ACTION_SEND);
             intent.setType("image/*");
             intent.putExtra(Intent.EXTRA_TEXT, text);
 
+            // Attach the image (must be a valid URI)
             try {
                 Uri uri = Uri.parse(imageUrl);
                 intent.putExtra(Intent.EXTRA_STREAM, uri);
@@ -38,10 +46,13 @@ public class IMessagePlugin extends Plugin {
                 call.reject("Invalid image URL.");
                 return;
             }
-
-        } else {
+        }
+        // CASE 2: Otherwise, SMS text only
+        else {
+            // Use ACTION_SENDTO for SMS
             intent = new Intent(Intent.ACTION_SENDTO);
-            intent.setData(Uri.parse("smsto:"));  // Ensures it opens an SMS/MMS app
+            // "smsto:" ensures only SMS apps will handle this intent
+            intent.setData(Uri.parse("smsto:"));
             intent.putExtra("sms_body", text);
         }
 
@@ -49,6 +60,7 @@ public class IMessagePlugin extends Plugin {
 
         try {
             getContext().startActivity(intent);
+
             JSObject result = new JSObject();
             result.put("status", "sent");
             call.resolve(result);
