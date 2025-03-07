@@ -4,7 +4,6 @@ import type { IMessagePlugin, SendMessageOptions } from './definitions';
 export class IMessageWeb extends WebPlugin implements IMessagePlugin {
 
   async isMessagingAvailable(): Promise<{ available: boolean }> {
-    console.warn('isMessagingAvailable is not supported on the web.');
     return Promise.resolve({ available: false });
   }
     
