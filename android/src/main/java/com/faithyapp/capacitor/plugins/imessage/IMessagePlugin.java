@@ -14,7 +14,6 @@ public class IMessagePlugin extends Plugin {
 
         JSObject result = new JSObject();
         result.put("available", available);
-
         call.resolve(result);
     }
 
@@ -22,10 +21,10 @@ public class IMessagePlugin extends Plugin {
     public void sendMessage(PluginCall call) {
         String text = call.getString("text", "");
         String imageUrl = call.getString("imageUrl");
-
-        Intent intent = new Intent(Intent.ACTION_SEND);
-        intent.setType("text/plain");
-        intent.putExtra(Intent.EXTRA_TEXT, text);
+        
+        Intent intent = new Intent(Intent.ACTION_VIEW);
+        intent.setData(Uri.parse("sms:"));  // Opens default messaging app
+        intent.putExtra("sms_body", text);  // Pre-fills the text message
 
         if (imageUrl != null && !imageUrl.isEmpty()) {
             Uri uri = Uri.parse(imageUrl);
