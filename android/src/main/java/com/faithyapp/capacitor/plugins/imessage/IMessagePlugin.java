@@ -3,12 +3,9 @@ package com.faithyapp.capacitor.plugins.imessage;
 import android.content.Intent;
 import android.net.Uri;
 import android.content.pm.PackageManager;
-import android.content.pm.ResolveInfo;
 import android.util.Log;
 import com.getcapacitor.*;
 import com.getcapacitor.annotation.CapacitorPlugin;
-
-import java.util.List;
 
 @CapacitorPlugin(name = "IMessage")
 public class IMessagePlugin extends Plugin {
@@ -27,25 +24,26 @@ public class IMessagePlugin extends Plugin {
         String text = call.getString("text", "");
         String imageUrl = call.getString("imageUrl");
 
-        Intent intent = new Intent(Intent.ACTION_VIEW);
-        intent.setData(Uri.parse("sms:")); // Opens messaging app
-        intent.putExtra("sms_body", text);
+        Intent intent = new Intent(Intent.ACTION_SEND);
+        intent.setType("image/*");
+
+        intent.putExtra("address", "");  // MMS requires an address field, even if empty
+        intent.putExtra(Intent.EXTRA_TEXT, text);
 
         if (imageUrl != null && !imageUrl.isEmpty()) {
-            Uri uri = Uri.parse(imageUrl);
-            intent.putExtra(Intent.EXTRA_STREAM, uri);
-            intent.setType("image/*");
+            try {
+                Uri uri = Uri.parse(imageUrl);
+                intent.putExtra(Intent.EXTRA_STREAM, uri);
+            } catch (Exception e) {
+                call.reject("Invalid image URL.");
+                return;
+            }
+        } else {
+            intent.setType("text/plain"); // If no image, ensure it's just text
         }
 
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-
-        String googleMessagesPackage = "com.google.android.apps.messaging";
-        if (isPackageInstalled(googleMessagesPackage)) {
-            intent.setPackage(googleMessagesPackage);
-        } else {
-            call.reject("Google Messages is not installed.");
-            return;
-        }
+        intent.setPackage("com.android.mms");
 
         try {
             getContext().startActivity(intent);
@@ -53,17 +51,8 @@ public class IMessagePlugin extends Plugin {
             result.put("status", "sent");
             call.resolve(result);
         } catch (Exception e) {
-            call.reject("Failed to open Google Messages.");
-        }
-    }
-
-    private boolean isPackageInstalled(String packageName) {
-        PackageManager pm = getContext().getPackageManager();
-        try {
-            pm.getPackageInfo(packageName, PackageManager.GET_ACTIVITIES);
-            return true;
-        } catch (PackageManager.NameNotFoundException e) {
-            return false;
+            Log.e("IMessagePlugin", "Error launching MMS app", e);
+            call.reject("Failed to open MMS app. Error: " + e.getMessage());
         }
     }
 }
