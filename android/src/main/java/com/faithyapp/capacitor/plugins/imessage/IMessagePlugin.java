@@ -1,22 +1,48 @@
 package com.faithyapp.capacitor.plugins.imessage;
 
-import com.getcapacitor.JSObject;
-import com.getcapacitor.Plugin;
-import com.getcapacitor.PluginCall;
-import com.getcapacitor.PluginMethod;
+import android.content.Intent;
+import android.net.Uri;
+import com.getcapacitor.*;
 import com.getcapacitor.annotation.CapacitorPlugin;
 
 @CapacitorPlugin(name = "IMessage")
 public class IMessagePlugin extends Plugin {
 
-    private IMessage implementation = new IMessage();
+    @PluginMethod
+    public void isMessagingAvailable(PluginCall call) {
+        boolean available = getContext().getPackageManager().hasSystemFeature("android.hardware.telephony");
+
+        JSObject result = new JSObject();
+        result.put("available", available);
+
+        call.resolve(result);
+    }
 
     @PluginMethod
-    public void echo(PluginCall call) {
-        String value = call.getString("value");
+    public void sendMessage(PluginCall call) {
+        String text = call.getString("text", "");
+        String imageUrl = call.getString("imageUrl");
 
-        JSObject ret = new JSObject();
-        ret.put("value", implementation.echo(value));
-        call.resolve(ret);
+        Intent intent = new Intent(Intent.ACTION_SEND);
+        intent.setType("text/plain");
+        intent.putExtra(Intent.EXTRA_TEXT, text);
+
+        if (imageUrl != null && !imageUrl.isEmpty()) {
+            Uri uri = Uri.parse(imageUrl);
+            intent.setType("image/*");
+            intent.putExtra(Intent.EXTRA_STREAM, uri);
+        }
+
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+
+        try {
+            getContext().startActivity(intent);
+
+            JSObject result = new JSObject();
+            result.put("status", "sent");
+            call.resolve(result);
+        } catch (Exception e) {
+            call.reject("Failed to open messaging app.");
+        }
     }
 }
