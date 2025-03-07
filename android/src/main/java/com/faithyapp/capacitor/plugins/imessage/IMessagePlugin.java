@@ -24,26 +24,23 @@ public class IMessagePlugin extends Plugin {
         String text = call.getString("text", "");
         String imageUrl = call.getString("imageUrl");
 
-        Intent intent = new Intent(Intent.ACTION_SEND);
-        intent.setType("image/*");
-
-        intent.putExtra("address", "");  // MMS requires an address field, even if empty
-        intent.putExtra(Intent.EXTRA_TEXT, text);
+        // ✅ Use ACTION_SENDTO to ensure the correct MMS app is used
+        Intent intent = new Intent(Intent.ACTION_SENDTO);
+        intent.setData(Uri.parse("mmsto:"));  // Ensures MMS (not SMS)
+        intent.putExtra("sms_body", text);
 
         if (imageUrl != null && !imageUrl.isEmpty()) {
             try {
                 Uri uri = Uri.parse(imageUrl);
                 intent.putExtra(Intent.EXTRA_STREAM, uri);
+                intent.setType("image/*");
             } catch (Exception e) {
                 call.reject("Invalid image URL.");
                 return;
             }
-        } else {
-            intent.setType("text/plain"); // If no image, ensure it's just text
         }
 
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        intent.setPackage("com.android.mms");
 
         try {
             getContext().startActivity(intent);
