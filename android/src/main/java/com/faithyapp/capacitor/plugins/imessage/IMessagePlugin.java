@@ -21,7 +21,7 @@ public class IMessagePlugin extends Plugin {
     public void sendMessage(PluginCall call) {
         String text = call.getString("text", "");
         String imageUrl = call.getString("imageUrl");
-        
+
         Intent intent = new Intent(Intent.ACTION_VIEW);
         intent.setData(Uri.parse("sms:"));  // Opens default messaging app
         intent.putExtra("sms_body", text);  // Pre-fills the text message

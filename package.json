@@ -1,6 +1,6 @@
 {
   "name": "capacitor-imessage",
-  "version": "7.0.2",
+  "version": "7.0.3",
   "description": "Capacitor plugin for iMessage",
   "main": "dist/plugin.cjs.js",
   "module": "dist/esm/index.js",
